@@ -44,3 +44,47 @@ protected void configure(HttpSecurity http) throws Exception {
 Only for HR staff
 </security:authorize>
 ```
+
+
+## Хранение пароля в БД
+### Создаем таблицы
+Для Spring Security важны именно такие названия:
+```sql
+CREATE TABLE users (
+    username varchar(15) PRIMARY KEY,
+    password varchar(100),
+    enabled boolean
+    );
+CREATE TABLE authorities (
+    username varchar(15),
+    authority varchar(25),
+    FOREIGN KEY (username) REFERENCES users(username)
+    );
+
+INSERT INTO users (username, password, enabled)
+VALUES
+    ('zaur', '{noop}zaur', true),
+    ('elena', '{noop}elena', true),
+    ('ivan', '{noop}ivan', true);
+
+INSERT INTO authorities (username, authority)
+VALUES
+    ('zaur', 'ROLE_EMPLOYEE'),
+    ('elena', 'ROLE_HR'),
+    ('ivan', 'ROLE_HR'),
+    ('ivan', 'ROLE_MANAGER');
+```
+Пароль в таблице содержится в виде: {алгоритм_кодирования}зашифрованный_пароль. 
+- {noop}, no operations, без шифрования
+- {bcrypt}, шифрование с помощью функции bcrypt
+
+Запросы для кредов мы вручную не делаем, за нас это делает Spring Security, поэтому hibernate не подключаем и не создаем дополнительные бины в классе конфигурации.
+
+В файле конфигурации Spring Security указываем спрингу, что информацию о пользователях берем из БД:
+```java
+@Override
+protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.jdbcAuthentication().dataSource(dataSource);
+}
+```
+

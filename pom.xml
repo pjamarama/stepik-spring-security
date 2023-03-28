@@ -56,8 +56,16 @@
       <artifactId>spring-security-taglibs</artifactId>
       <version>5.4.1</version>
     </dependency>
-
-
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.5.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mchange</groupId>
+      <artifactId>c3p0</artifactId>
+      <version>0.9.5.2</version>
+    </dependency>
   </dependencies>
 
   <build>
