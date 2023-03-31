@@ -74,9 +74,13 @@ VALUES
     ('ivan', 'ROLE_HR'),
     ('ivan', 'ROLE_MANAGER');
 ```
+
+### Хранение пароля в открытом и закрытом виде
 Пароль в таблице содержится в виде: {алгоритм_кодирования}зашифрованный_пароль. 
 - {noop}, no operations, без шифрования
 - {bcrypt}, шифрование с помощью функции bcrypt
+
+Шифрование bcrypt - односторонее, зная хэш, мы все равно не сможем извлечь пароль из него. При шифровании bcrypt
 
 Запросы для кредов мы вручную не делаем, за нас это делает Spring Security, поэтому hibernate не подключаем и не создаем дополнительные бины в классе конфигурации.
 
@@ -85,6 +89,18 @@ VALUES
 @Override
 protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth.jdbcAuthentication().dataSource(dataSource);
+}
+```
+
+Аутентификацию для ролей прописываем следующим образом:
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.authorizeRequests()
+            .antMatchers("/").hasAnyRole("EMPLOYEE", "HR", "MANAGER")
+            .antMatchers("/hr_info").hasRole("HR")
+            .antMatchers("/manager_info/**").hasRole("MANAGER")
+            .and().formLogin().permitAll();
 }
 ```
 
